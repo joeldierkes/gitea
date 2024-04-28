@@ -41,3 +41,31 @@ export function matchMention(queryText) {
 
   return sortAndReduce(results);
 }
+
+const COMMANDS = [
+  // Opens an issue.
+  {command: "open"},
+
+  // Closes an issue.
+  {command: "close"},
+
+  // Assigns all people to the issue.
+  {command: "assign"},
+
+  // Assigns all lables to the issue.
+  {command: "label"},
+];
+
+export function matchCommand(queryText) {
+  const query = queryText.toLowerCase();
+
+  // results is a map of weights, lower is better
+  const results = new Map();
+  for (const obj of COMMANDS) {
+    const index = obj.command.toLowerCase().indexOf(query);
+    if (index === -1) continue;
+    results.set(obj, index);
+  }
+
+  return sortAndReduce(results);
+}

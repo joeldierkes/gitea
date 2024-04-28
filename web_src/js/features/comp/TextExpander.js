@@ -1,4 +1,4 @@
-import {matchEmoji, matchMention} from '../../utils/match.js';
+import {matchCommand, matchEmoji, matchMention} from '../../utils/match.js';
 import {emojiString} from '../emoji.js';
 
 export function initTextExpander(expander) {
@@ -47,12 +47,28 @@ export function initTextExpander(expander) {
 
         ul.append(li);
       }
+    } else if (key === '/') {
+      console.log("The / key was hit");
+      const matches = matchCommand(text);
+      if (!matches.length) return provide({matched: false});
+
+      const ul = document.createElement('ul');
+      ul.classList.add('suggestions');
+      for (const { command } of matches) {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'option');
+        li.setAttribute('data-value', command);
+        li.textContent = `${command}`;
+        ul.append(li);
+      }
 
       provide({matched: true, fragment: ul});
     }
   });
   expander?.addEventListener('text-expander-value', ({detail}) => {
-    if (detail?.item) {
+    if (detail?.item && detail.key === '/') {
+      detail.value = `/${detail.item.getAttribute('data-value')} `;
+    } else if (detail?.item) {
       // add a space after @mentions as it's likely the user wants one
       const suffix = detail.key === '@' ? ' ' : '';
       detail.value = `${detail.item.getAttribute('data-value')}${suffix}`;
